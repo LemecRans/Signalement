@@ -18,3 +18,4 @@ public class AllControllers {
 	public String listeSignalement(){
 		return "hello bro";
 	}
+}
