@@ -6,7 +6,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mysql.jdbc.PreparedStatement;
 
 public class Utilisateur {
 	int idUtilisateur;
@@ -243,7 +242,7 @@ public class Utilisateur {
         String req="INSERT INTO Utilisateur(loginUtilisateur,mdpUtilisateur,idRegion) values ('"+login+"','"+password+"',"+idRegion+")";
         Connexion conne=new Connexion();
         Connection connecte = null;
-        PreparedStatement pstmt=null;
+        Statement pstmt=null;
         Function fonc=new Function();
         String valinyLogin=fonc.testLogin(login);
         String valinyMdp=fonc.test2(password);
@@ -253,8 +252,8 @@ public class Utilisateur {
             {
                 rep="Valide";
                 connecte=conne.con();
-                pstmt=(PreparedStatement) connecte.prepareStatement(req);
-                pstmt.executeUpdate();
+                pstmt= connecte.prepareStatement(req);
+                pstmt.executeUpdate(req);
             }
             if(valinyLogin.equals("Valide")==false && valinyMdp.equals("Valide"))
             {
