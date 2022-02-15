@@ -284,7 +284,7 @@ public class Signalement {
 
     public List<Signalement> allSignalementEtat(){
         List<Signalement> liste = new ArrayList();
-        String request = "SELECT signalement.*,statut.etatStatut,probleme.designationProbleme,utilisateur.loginUtilisateur FROM `signalement` JOIN probleme ON signalement.idProbleme = probleme.idProbleme JOIN statut ON statut.idStatut = signalement.idStatut JOIN Utilisateur ON Signalement.idUtilisateur = Utilisateur.idUtilisateur";
+        String request = "SELECT signalement.*,statut.etatStatut,probleme.designationProbleme,utilisateur.loginUtilisateur FROM signalement JOIN probleme ON signalement.idProbleme = probleme.idProbleme JOIN statut ON statut.idStatut = signalement.idStatut JOIN Utilisateur ON Signalement.idUtilisateur = Utilisateur.idUtilisateur";
         Statement stmt;
         Connection connex;
         int i = 0;
@@ -368,7 +368,7 @@ public class Signalement {
 
     public List<Signalement> signalementByEtat(int id){
         List<Signalement> liste = new ArrayList();
-        String request = "SELECT signalement.*,statut.etatStatut,probleme.designationProbleme,utilisateur.loginUtilisateur FROM `signalement` JOIN probleme ON signalement.idProbleme = probleme.idProbleme JOIN statut ON statut.idStatut = signalement.idStatut JOIN Utilisateur ON Signalement.idUtilisateur = Utilisateur.idUtilisateur where Statut.idStatut="+id;
+        String request = "SELECT signalement.*,statut.etatStatut,probleme.designationProbleme,utilisateur.loginUtilisateur FROM signalement JOIN probleme ON signalement.idProbleme = probleme.idProbleme JOIN statut ON statut.idStatut = signalement.idStatut JOIN Utilisateur ON Signalement.idUtilisateur = Utilisateur.idUtilisateur where Statut.idStatut="+id;
         Statement stmt;
         Connection connex;
         int i = 0;
@@ -411,7 +411,7 @@ public class Signalement {
         Region region = new Region();
         int compte = 0;
         for (int i = 0; i < allIdStat.size(); i++) {
-            String request = "SELECT *,count(idSignalement) FROM Signalement JOIN Probleme ON Signalement.idProbleme = Probleme.idProbleme JOIN Statut ON Statut.idStatut = Signalement.idStatut WHERE Signalement.idStatut = "+allIdStat.get(i).getIdStatut()+" GROUP BY Probleme.idProbleme";
+            String request = "SELECT coordonneX,coordonneY,count(idSignalement) FROM Signalement JOIN Probleme ON Signalement.idProbleme = Probleme.idProbleme JOIN Statut ON Statut.idStatut = Signalement.idStatut WHERE Signalement.idStatut = "+allIdStat.get(i).getIdStatut()+" GROUP BY Probleme.idProbleme,coordonneX,coordonneY";
             try {
                 connex = Connexion.con(); 
                 stmt = connex.createStatement();
@@ -450,15 +450,15 @@ public class Signalement {
         Region region = new Region();
         int compte = 0;
         String etatStatut = new String();
-            String request = "SELECT *,count(idSignalement) FROM Signalement JOIN Probleme ON Signalement.idProbleme = Probleme.idProbleme JOIN Statut ON Statut.idStatut = Signalement.idStatut WHERE Signalement.idStatut = 1 GROUP BY Probleme.idProbleme";
+            String request = "SELECT coordonneX,coordonneY,count(idSignalement) FROM Signalement JOIN Probleme ON Signalement.idProbleme = Probleme.idProbleme JOIN Statut ON Statut.idStatut = Signalement.idStatut WHERE Signalement.idStatut = 1 GROUP BY Probleme.idProbleme,coordonneX, coordonneY";
             try {
                 connex = Connexion.con(); 
                 stmt = connex.createStatement();
                 ResultSet res = stmt.executeQuery(request);
                 System.out.println("Requete all Signalement Etat : "+request);
                 while (res.next()){   
-                    double cX = res.getDouble(3);
-                    double cY = res.getDouble(4);
+                    double cX = res.getDouble(1);
+                    double cY = res.getDouble(2);
                     String regionParCoodonne = region.getRegionByCoordonne(cX,cY);
                     etatStatut = res.getString(13);
                     if(designationRegion.trim().equals(regionParCoodonne)){
@@ -484,15 +484,15 @@ public class Signalement {
         Region region = new Region();
         int compte = 0;
         String etatStatut = new String();
-            String request = "SELECT *,count(idSignalement) FROM Signalement JOIN Probleme ON Signalement.idProbleme = Probleme.idProbleme JOIN Statut ON Statut.idStatut = Signalement.idStatut WHERE Signalement.idStatut = 2 GROUP BY Probleme.idProbleme";
+            String request = "SELECT coordonneX,coordonneY,count(idSignalement) FROM Signalement JOIN Probleme ON Signalement.idProbleme = Probleme.idProbleme JOIN Statut ON Statut.idStatut = Signalement.idStatut WHERE Signalement.idStatut = 2 GROUP BY Probleme.idProbleme,coordonneX, coordonneY";
             try {
                 connex = Connexion.con(); 
                 stmt = connex.createStatement();
                 ResultSet res = stmt.executeQuery(request);
                 System.out.println("Requete all Signalement Etat : "+request);
                 while (res.next()){   
-                    double cX = res.getDouble(3);
-                    double cY = res.getDouble(4);
+                    double cX = res.getDouble(1);
+                    double cY = res.getDouble(2);
                     String regionParCoodonne = region.getRegionByCoordonne(cX,cY);
                     etatStatut = res.getString(13);
                     if(designationRegion.trim().equals(regionParCoodonne)){
@@ -518,15 +518,15 @@ public class Signalement {
         Region region = new Region();
         int compte = 0;
         String etatStatut = new String();
-            String request = "SELECT *,count(idSignalement) FROM Signalement JOIN Probleme ON Signalement.idProbleme = Probleme.idProbleme JOIN Statut ON Statut.idStatut = Signalement.idStatut WHERE Signalement.idStatut = 3 GROUP BY Probleme.idProbleme";
+            String request = "SELECT coordonneX,coordonneY,count(idSignalement) FROM Signalement JOIN Probleme ON Signalement.idProbleme = Probleme.idProbleme JOIN Statut ON Statut.idStatut = Signalement.idStatut WHERE Signalement.idStatut = 3 GROUP BY Probleme.idProbleme,coordonneX, coordonneY";
             try {
                 connex = Connexion.con(); 
                 stmt = connex.createStatement();
                 ResultSet res = stmt.executeQuery(request);
                 System.out.println("Requete all Signalement Etat : "+request);
                 while (res.next()){   
-                    double cX = res.getDouble(3);
-                    double cY = res.getDouble(4);
+                    double cX = res.getDouble(1);
+                    double cY = res.getDouble(2);
                     String regionParCoodonne = region.getRegionByCoordonne(cX,cY);
                     etatStatut = res.getString(13);
                     if(designationRegion.trim().equals(regionParCoodonne)){
@@ -559,21 +559,26 @@ public class Signalement {
         int somme = 0;
         Signalement signalement = new Signalement();
         List<Signalement> listeStat = signalement.statByStatut(designationRegion);
-        //Tsy mbola mety ty mode de calcul ty fa juste amoahana stat fotsiny alony
+        
         for (int i = 0; i < listeStat.size(); i++) {
             somme = somme + listeStat.get(i).getCompteur();
         }
-        // System.out.println(somme);
+        
         double[] calclul = new double[listeStat.size()];
-        for (int i = 0; i < listeStat.size(); i++) {
-            calclul[i] = ((listeStat.get(i).getCompteur() * 100 )/somme);
-            liste.add(new Signalement(designationRegion, listeStat.get(i).getEtatStatut(),calclul[i]));
-        }
+    	for (int i = 0; i < listeStat.size(); i++) {
+    		if(somme == 0) {
+    			liste.add(new Signalement(designationRegion, listeStat.get(i).getEtatStatut(),0));
+            }
+    		else {
+    			calclul[i] = ((listeStat.get(i).getCompteur() * 100 )/somme);
+    			liste.add(new Signalement(designationRegion, listeStat.get(i).getEtatStatut(),calclul[i]));
+    		} 
+    	}
         return liste;
     }
     public List<Signalement> signalementByIdUtilisateur(int idUtil){
         List<Signalement> liste = new ArrayList();
-        String request = "SELECT signalement.*,statut.etatStatut,probleme.designationProbleme FROM `signalement` JOIN probleme ON signalement.idProbleme = probleme.idProbleme JOIN statut ON statut.idStatut = signalement.idStatut where signalement.idUtilisateur="+idUtil;
+        String request = "SELECT signalement.*,statut.etatStatut,probleme.designationProbleme FROM signalement JOIN probleme ON signalement.idProbleme = probleme.idProbleme JOIN statut ON statut.idStatut = signalement.idStatut where signalement.idUtilisateur="+idUtil;
         Statement stmt;
         Connection connex;
         int i = 0;

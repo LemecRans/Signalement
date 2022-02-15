@@ -46,7 +46,7 @@ public class Admin {
     
     public List<Admin> allAdmin(){
         List<Admin> liste = new ArrayList();
-        String request = "SELECT * FROM Admin";
+        String request = "select * from Admin";
         java.sql.Statement stmt;
         Connection connex;
         try {

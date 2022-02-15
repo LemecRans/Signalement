@@ -7,13 +7,12 @@ public class Connexion {
 	public static Connection con() {
         java.sql.Connection conn = null;
         try{
-            Class.forName("com.mysql.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/ProjetMobile","root","");          
+            Class.forName("org.postgresql.Driver");
+            conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/projetmobile","postgres","root");          
         } catch(Exception e){
             e.printStackTrace();
         }
         return conn;
     }
 }
-
 

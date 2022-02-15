@@ -6,6 +6,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mysql.jdbc.PreparedStatement;
 
 public class Utilisateur {
 	int idUtilisateur;
@@ -98,75 +99,21 @@ public class Utilisateur {
         }
         return liste;
     }
-    public static Utilisateur connexion(String login,String mdp){
-    	Utilisateur a=new Utilisateur(0,null, null,0);
-        String request = "select idUtilisateur,idregion from Utilisateur where loginutilisateur=\""+login+"\" and mdputilisateur=\""+mdp+"\"";
-        Statement stmt;
-        Connection connex;
-        try {
-            connex = Connexion.con(); 
-            stmt = connex.createStatement();
-            ResultSet res = stmt.executeQuery(request);
-            System.out.println("Requete all Utilisateur : "+request);
-            while (res.next()){
-            	int idUtilisateur = res.getInt(1);
-                int idRegion = res.getInt(2);
-                a=new Utilisateur(idUtilisateur,login, mdp,idRegion);
-            }
-            connex.close();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return a;
+    
+    public static int getIdByLogin(String login, String mdp) {
+    	Utilisateur utilisateur = new Utilisateur();
+    	List<Utilisateur> listeUtilisateur = utilisateur.allUtilisateur();
+    	int valiny =0;
+    	for(int i=0; i<listeUtilisateur.size(); i++) {
+    		if(listeUtilisateur.get(i).getLoginUtilisateur().equals(login)==true && listeUtilisateur.get(i).getMdpUtlisateur().equals(mdp)==true) {
+    			return listeUtilisateur.get(i).getIdUtilisateur();
+    		}
+    		else {
+    			valiny = 0;
+    		}
+    	}
+    	return valiny;
     }
-
-    public String inscrir(String login,String password,int idRegion)throws Exception
-    {
-        String req="INSERT INTO Utilisateur(loginUtilisateur,mdpUtilisateur,idRegion) values ('"+login+"','"+password+"',"+idRegion+")";
-        Statement stmt;
-        Connection connex;
-        String valiny = null;
-        try {
-            connex = Connexion.con(); 
-            stmt = connex.createStatement();
-            stmt.executeUpdate(req);
-            valiny = "SUCCESS";
-        } catch (Exception ex) {
-            valiny = "ERROR";
-            ex.printStackTrace();
-            throw ex;
-
-        }finally{
-            Connexion.con().close();
-        }
-        return valiny;
-    }
-	
-//    public int seConnecter(String login,String password)
-//    {
-//        Utilisateur utilisateurs = new Utilisateur();
-//        List<Utilisateur> listeUtilisateur = utilisateurs.allUtilisateur();
-//        int reponse=0;
-//        Utilisateur[] utilisateur=new Utilisateur[listeUtilisateur.size()];
-//        for (int i=0; i< listeUtilisateur.size() ;i++ ) {
-//            utilisateur[i]=listeUtilisateur.get(i);
-//            if(utilisateur[i].getLoginUtilisateur().compareTo(login)==0)
-//            {
-//                if(utilisateur[i].getMdpUtlisateur().compareTo(password)==0)
-//                {
-//                    reponse=utilisateur[i].getIdUtilisateur();
-//                    break;
-//                }
-//                else{
-//                    reponse=0;   
-//                }
-//            }
-//            else{
-//                reponse=0;
-//            }
-//        }
-//        return reponse;
-//    }
 	
     public int updateUti(int idRegion,int idUtilisateur)throws Exception
     {
@@ -254,7 +201,7 @@ public class Utilisateur {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        if(cody.equalsIgnoreCase(code)==false) {
+        if(cody.equalsIgnoreCase(code)==true) {
             test=true;
         }
 		return test;
@@ -292,9 +239,11 @@ public class Utilisateur {
     
     public String inscrirN(String login,String password,int idRegion)throws Exception
     {
+    	Utilisateur utilisateur = new Utilisateur();
         String req="INSERT INTO Utilisateur(loginUtilisateur,mdpUtilisateur,idRegion) values ('"+login+"','"+password+"',"+idRegion+")";
-        Connection connex;
-        Statement stmt;
+        Connexion conne=new Connexion();
+        Connection connecte = null;
+        PreparedStatement pstmt=null;
         Function fonc=new Function();
         String valinyLogin=fonc.testLogin(login);
         String valinyMdp=fonc.test2(password);
@@ -303,9 +252,9 @@ public class Utilisateur {
         	if(valinyLogin.equals("Valide") && valinyMdp.equals("Valide"))
             {
                 rep="Valide";
-                connex = Connexion.con();
-                stmt = connex.createStatement();
-                stmt.executeUpdate(req);
+                connecte=conne.con();
+                pstmt=(PreparedStatement) connecte.prepareStatement(req);
+                pstmt.executeUpdate();
             }
             if(valinyLogin.equals("Valide")==false && valinyMdp.equals("Valide"))
             {
@@ -326,11 +275,12 @@ public class Utilisateur {
             ex.printStackTrace();
             throw ex;
         }finally{
-        	Connexion.con().close();
+            if(connecte!=null)
+                connecte.close();
         }
     }
 
-    public int seConnecter(String login,String password)
+    public int seConnecter(String login,String password) throws Exception
     {
         Utilisateur utilisateurs = new Utilisateur();
         List<Utilisateur> listeUtilisateur = utilisateurs.allUtilisateur();
@@ -343,6 +293,7 @@ public class Utilisateur {
                 if(utilisateur[i].getMdpUtlisateur().compareTo(password)==0)
                 {
                     reponse=utilisateur[i].getIdUtilisateur();
+                    utilisateur[i].donnerToken(Utilisateur.getIdByLogin(login.trim(), password.trim()),2);
                     break;
                 }
                 else{
@@ -359,9 +310,6 @@ public class Utilisateur {
 
     public static void  main(String[] args) {
         Utilisateur a = new Utilisateur();
-        List<String> liste = a.listToken("",1);
-        for (int index = 0; index < liste.size(); index++) {
-            System.out.println(liste.get(index));
-        }
+            System.out.println( a.testToken("signUtili",2));
     }
 }

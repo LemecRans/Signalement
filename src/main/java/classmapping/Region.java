@@ -162,7 +162,7 @@ public class Region {
     
     public List<Region> rechercheProblemeParRegion(String mot){
         List<Region> liste = new ArrayList();
-        String request = "SELECT designationProbleme, designationRegion FROM signalement JOIN Probleme ON signalement.idProbleme = Probleme.idProbleme JOIN utilisateur ON utilisateur.idUtilisateur = Signalement.idUtilisateur JOIN region ON region.idRegion = utilisateur.idRegion WHERE designationProbleme like '%%"+mot.trim()+"%' GROUP BY designationRegion";
+        String request = "SELECT designationProbleme, designationRegion FROM signalement JOIN Probleme ON signalement.idProbleme = Probleme.idProbleme JOIN utilisateur ON utilisateur.idUtilisateur = Signalement.idUtilisateur JOIN region ON region.idRegion = utilisateur.idRegion WHERE designationProbleme like '%%"+mot.trim()+"%' GROUP BY designationRegion,designationProbleme";
         Statement stmt;
         Connection connex;
         int i = 0;
@@ -231,6 +231,35 @@ public class Region {
             ex.printStackTrace();
         }
         return idRegion;
+    }
+
+    public Region RegionbyId(String s){
+        List<Region> liste = new ArrayList();
+        String request = "select * from Region where idRegion="+s;
+        Statement stmt;
+        Connection connex;
+        int i = 0;
+        try {
+            connex = Connexion.con(); 
+            stmt = connex.createStatement();
+            ResultSet res = stmt.executeQuery(request);
+            // System.out.println("Requete all region : "+request);
+            while (res.next()){
+                int idRegion  = res.getInt(1);                
+                String designationRegion  = res.getString(2);
+                double coordonneX  = res.getDouble(3);
+                double coordonneY  = res.getDouble(4);
+                double coordonneX1  = res.getDouble(5);
+                double coordonneY1  = res.getDouble(6);
+                liste.add(new Region(idRegion, designationRegion, coordonneX, coordonneY, coordonneX1, coordonneY1));               
+                i++;
+            }
+            connex.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        Region valiny=liste.get(0);
+        return valiny;
     }
 
     public static void main(String[] args){

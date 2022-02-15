@@ -146,11 +146,21 @@ public class ProblemeRegion {
         List<ProblemeRegion> liste = new ArrayList();
         ProblemeRegion problemeRegion = new ProblemeRegion();
         int countAllProbleme = problemeRegion.sommeCompteur(id);
+        System.out.println(countAllProbleme);
         List<ProblemeRegion> listeProbleme = problemeRegion.getProblemeRegion(id);
-        for (int i = 0; i < listeProbleme.size(); i++) {
-            double pourcentage = (listeProbleme.get(i).getCompteur() * (double)100)/(double)countAllProbleme;
-            liste.add(new ProblemeRegion(listeProbleme.get(i).getIdProblemeRegion(),listeProbleme.get(i).getDesignationProbleme(), listeProbleme.get(i).getDesignationRegion(), listeProbleme.get(i).getCompteur(), pourcentage));
+        if(countAllProbleme != 0) {
+        	for (int i = 0; i < listeProbleme.size(); i++) {
+                double pourcentage = (listeProbleme.get(i).getCompteur() * 100)/(double)(countAllProbleme);     
+                
+                liste.add(new ProblemeRegion(listeProbleme.get(i).getIdProblemeRegion(),listeProbleme.get(i).getDesignationProbleme(), listeProbleme.get(i).getDesignationRegion(), listeProbleme.get(i).getCompteur(), pourcentage));
+            }
         }
+        else {
+        	for (int i = 0; i < listeProbleme.size(); i++) {                
+                liste.add(new ProblemeRegion(listeProbleme.get(i).getIdProblemeRegion(),listeProbleme.get(i).getDesignationProbleme(), listeProbleme.get(i).getDesignationRegion(), listeProbleme.get(i).getCompteur(), 0));
+            }
+        }
+        
         return liste;
     }
 
@@ -228,13 +238,13 @@ public class ProblemeRegion {
         return valiny;
     }
 
-    // public static void main(String[] args){
-    //     ProblemeRegion problemeRegion = new ProblemeRegion();
-    //     String affectation = problemeRegion.affecterSignalement(1, 2);
-    //     System.out.println(affectation);
-    //     // List<ProblemeRegion> liste = problemeRegion.getPourcentageParRegion(1);
-    //     // for (int i = 0; i < liste.size(); i++){
-    //     //     System.out.println("Region: " + liste.get(i).getDesignationRegion()+"- Probleme: "+ liste.get(i).getDesignationProbleme()+"- Pourcentage: "+ liste.get(i).getPourcentage()+"%");
-    //     // }
-    // }
+     public static void main(String[] args){
+         ProblemeRegion problemeRegion = new ProblemeRegion();
+         String affectation = problemeRegion.affecterSignalement(1, 2);
+         System.out.println(affectation);
+          List<ProblemeRegion> liste = problemeRegion.getPourcentageParRegion(8);
+          for (int i = 0; i < liste.size(); i++){
+              System.out.println("Region: " + liste.get(i).getDesignationRegion()+"- Probleme: "+ liste.get(i).getDesignationProbleme()+"- Pourcentage: "+ liste.get(i).getPourcentage()+"%");
+          }
+     }
 }

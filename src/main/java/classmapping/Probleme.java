@@ -115,8 +115,7 @@ public class Probleme {
     
     public List<Probleme> CountProblemeExist(){
         List<Probleme> listeCount = new ArrayList();
-        Region region = new Region();
-        String request = "select designationProbleme,count(*),CoordonneX,CoordonneY from probleme join signalement on probleme.idProbleme = signalement.idProbleme group by probleme.idProbleme";
+        String request = "select designationProbleme,count(*) from probleme join signalement on probleme.idProbleme = signalement.idProbleme group by probleme.idProbleme";
         java.sql.Statement stmt;
         Connection connex;
         try {
@@ -127,10 +126,7 @@ public class Probleme {
             while (res.next()){
                 String designation  = res.getString(1);
                 int valeure = res.getInt(2);
-                double coordonneeX = res.getDouble(3);
-                double coordonneeY = res.getDouble(4);
-                String getPointRegion = region.getRegionByCoordonne(coordonneeX, coordonneeY);
-                listeCount.add(new Probleme(designation, valeure,getPointRegion));
+                listeCount.add(new Probleme(designation, valeure,"Alamanga"));
             }
             connex.close();
         } catch (Exception ex) {
@@ -180,13 +176,13 @@ public class Probleme {
         return listeFinal;
     }
     
-    // public static void main(String[] args) {
-    //     Probleme probleme = new Probleme();
-    //     List<Probleme> liste = probleme.calculPourcentage();
-    //     for (int i = 0; i < liste.size(); i++) {
-    //         System.out.println(liste);   
-    //     }
-    // }
+    public static void main(String[] args) {
+        Probleme probleme = new Probleme();
+        List<Probleme> liste = probleme.calculPourcentage();
+        for (int i = 0; i < liste.size(); i++) {
+            System.out.println(liste);   
+        }
+    }
     
     public List<Probleme> rechercheProbleme(String mot){
     	Region reg= new Region();
@@ -266,13 +262,8 @@ public class Probleme {
         return liste;
     }
     public List<Probleme> allProbleme(){
-    	Region reg= new Region();
-    	
         List<Probleme> liste = new ArrayList();
-        String request = "SELECT signalement.idProbleme, designationProbleme, coordonneX, coordonneY, etatStatut\r\n"
-        		+ "FROM signalement\r\n"
-        		+ "JOIN Probleme ON signalement.idProbleme = Probleme.idProbleme\r\n"
-        		+ "JOIN statut ON signalement.idStatut = statut.idStatut\r\n";
+        String request = "SELECT signalement.idProbleme, designationProbleme, coordonneX, coordonneY, etatStatut FROM signalement JOIN Probleme ON signalement.idProbleme = Probleme.idProbleme JOIN statut ON signalement.idStatut = statut.idStatut";
         java.sql.Statement stmt;
         Connection connex;
         int i = 0;
@@ -284,8 +275,6 @@ public class Probleme {
             while (res.next()){
             	int id = res.getInt(1);  
                 String designationProbleme  = res.getString(2);
-                double coordonneX  = res.getDouble(3);
-                double coordonneY  = res.getDouble(4);
                 String sta=res.getString(5);
                 liste.add(new Probleme(id,designationProbleme,sta));               
                 i++;
@@ -300,7 +289,7 @@ public class Probleme {
 
     public List<Probleme> allBleme(){
         List<Probleme> liste = new ArrayList();
-        String request = "select * from Probleme";
+        String request = "SELECT * FROM Probleme";
         Statement stmt;
         Connection connex;
         int i = 0;
@@ -320,10 +309,5 @@ public class Probleme {
             ex.printStackTrace();
         }
         return liste;
-    }
-    public static void main(String[] args){
-        Probleme probleme = new Probleme();
-        List<Probleme> recherchePro = probleme.recherchePro("Tapaka rano", "Vatovavy-Fitovinany", "Neutre");
-        System.out.println(recherchePro.get(0).getDesignationProbleme());
     }
 }
