@@ -1,9 +1,4 @@
 {
   "root": "public",
-  "clean_urls": true,
-  "routes": {
-    "/assets/*": "/assets/",
-    "/": "index.html"
-    
-  }
+  "clean_urls": false
 }
