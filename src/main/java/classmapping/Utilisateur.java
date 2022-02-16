@@ -1,8 +1,14 @@
 package classmapping;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.sql.*;
+
+import java.sql.PreparedStatement;
 
 public class Utilisateur {
 	int idUtilisateur;
@@ -11,7 +17,7 @@ public class Utilisateur {
     int idRegion;
     String region;
 
-	public Utilisateur() {
+    public Utilisateur() {
     }
 
     public Utilisateur(int idUtilisateur, String loginUtilisateur, String mdpUtlisateur, int idRegion) {
@@ -179,7 +185,54 @@ public class Utilisateur {
 		return liste;
 	}
 
+    public static boolean testToken(String code,int idUtilisateur) {
+        boolean test=false;
+        Statement stmt;
+        Connection connex;
+        String cody="";
+        try {
+            String request ="SELECT Token.code,Token.idUtilisateur FROM Token WHERE idUtilisateur ="+idUtilisateur;
+            connex = Connexion.con(); 
+            stmt = connex.createStatement();
+            ResultSet res = stmt.executeQuery(request);
+            while (res.next())
+            {
+                cody = res.getString("Token.code");            
+            }
+            Connexion.con().close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        if(cody.equalsIgnoreCase(code)==true) {
+            test=true;
+        }
+		return test;
+    }
 
+    public static void donnerToken(int idUtilisateur,int fonction) throws Exception {
+    	String code="sign"+idUtilisateur;
+    	int log=idUtilisateur*new Date().getMinutes();
+        String valiny = code+"-"+log;
+    	String req="INSERT INTO token values (0,'"+valiny+"',"+idUtilisateur+")";
+        Statement stmt;
+        Connection connex;
+        
+        try {
+            connex = Connexion.con(); 
+            stmt = connex.createStatement();
+            stmt.executeUpdate(req);
+            valiny = "SUCCESS";
+        } 
+        catch (Exception ex) 
+        {
+            valiny = "ERROR";
+            ex.printStackTrace();
+            throw ex;
+
+        }finally{
+            Connexion.con().close();
+        }
+    }
     
     public String inscrirN(String login,String password,int idRegion)throws Exception
     {
@@ -237,7 +290,7 @@ public class Utilisateur {
                 if(utilisateur[i].getMdpUtlisateur().compareTo(password)==0)
                 {
                     reponse=utilisateur[i].getIdUtilisateur();
-                    //utilisateur[i].donnerToken(Utilisateur.getIdByLogin(login.trim(), password.trim()),2);
+                    utilisateur[i].donnerToken(Utilisateur.getIdByLogin(login.trim(), password.trim()),2);
                     break;
                 }
                 else{
@@ -254,5 +307,6 @@ public class Utilisateur {
 
     public static void  main(String[] args) {
         Utilisateur a = new Utilisateur();
+            System.out.println( a.testToken("signUtili",2));
     }
 }
