@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+import java.util.Random;
 import java.sql.PreparedStatement;
 
 public class Utilisateur {
@@ -100,6 +100,30 @@ public class Utilisateur {
             ex.printStackTrace();
         }
         return liste;
+    }
+    public static Utilisateur getUtibyid(String id) {
+    	Utilisateur a= new Utilisateur();
+    	Statement stmt;
+        Connection connex;
+        try {
+            String request ="SELECT * FROM Token where id="+id;
+            connex = Connexion.con(); 
+            stmt = connex.createStatement();
+            ResultSet res = stmt.executeQuery(request);
+            while (res.next())
+            {
+            	int idUtilisateur = res.getInt(1);
+            	String loginUtilisateur = res.getString(2);
+                String mdpUtlisateur = res.getString(3);
+                int idRegion = res.getInt(4);        
+                String region = res.getString(5);
+                a=new Utilisateur(idUtilisateur, loginUtilisateur, mdpUtlisateur, idRegion,region);       
+            }
+            Connexion.con().close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    	return a;
     }
     
     public static int getIdByLogin(String login, String mdp) {
@@ -209,10 +233,15 @@ public class Utilisateur {
 		return test;
     }
 
-    public static void donnerToken(int idUtilisateur,int fonction) throws Exception {
-    	String code="sign"+idUtilisateur;
+    public static String donnerToken(int idUtilisateur,int fonction) throws Exception {
+    	Random re=new Random(7);
+    	String[] temp={"kihjqcf","lkfsnlqfkj","kifjlqazfjiq","qfjknlqlfnk","jfbqskbkbhjfe","nfqbsjkdbakiqboz","qnzdfknlon"};
+    	String code=temp[re.nextInt()]+""+idUtilisateur;
     	int log=idUtilisateur*new Date().getMinutes();
         String valiny = code+"-"+log;
+        if(fonction==2) {
+        	valiny+="."+Utilisateur.getUtibyid(""+idUtilisateur).getIdRegion();
+        }
     	String req="INSERT INTO token values (0,'"+valiny+"',"+idUtilisateur+")";
         Statement stmt;
         Connection connex;
@@ -232,6 +261,7 @@ public class Utilisateur {
         }finally{
             Connexion.con().close();
         }
+        return valiny;
     }
     
     public String inscrirN(String login,String password,int idRegion)throws Exception
@@ -277,11 +307,11 @@ public class Utilisateur {
         }
     }
 
-    public int seConnecter(String login,String password) throws Exception
+    public String seConnecter(String login,String password) throws Exception
     {
         Utilisateur utilisateurs = new Utilisateur();
         List<Utilisateur> listeUtilisateur = utilisateurs.allUtilisateur();
-        int reponse=0;
+        String reponse="";
         Utilisateur[] utilisateur=new Utilisateur[listeUtilisateur.size()];
         for (int i=0; i< listeUtilisateur.size() ;i++ ) {
             utilisateur[i]=listeUtilisateur.get(i);
@@ -289,16 +319,9 @@ public class Utilisateur {
             {
                 if(utilisateur[i].getMdpUtlisateur().compareTo(password)==0)
                 {
-                    reponse=utilisateur[i].getIdUtilisateur();
-                    utilisateur[i].donnerToken(Utilisateur.getIdByLogin(login.trim(), password.trim()),2);
+                    reponse=utilisateur[i].donnerToken(Utilisateur.getIdByLogin(login.trim(), password.trim()),2);
                     break;
                 }
-                else{
-                    reponse=0;   
-                }
-            }
-            else{
-                reponse=0;
             }
         }
         return reponse;
