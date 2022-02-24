@@ -576,6 +576,25 @@ public class Signalement {
     	}
         return liste;
     }
+    public static String login(int id){
+        String liste = null;
+        String request = "SELECT signalement.idSignalement ,Utilisateur.loginUtilisateur FROM signalement JOIN Utilisateur ON signalement.idUtilisateur = Utilisateur.idUtilisateur where signalement.idSignalement ="+id;
+        Statement stmt;
+        Connection connex;
+        int i = 0;
+        try {
+            connex = Connexion.con(); 
+            stmt = connex.createStatement();
+            ResultSet res = stmt.executeQuery(request);
+            while (res.next()){
+                liste=res.getString(2);;
+            }
+            connex.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return liste;
+    }
     public List<Signalement> signalementByIdUtilisateur(int idUtil){
         List<Signalement> liste = new ArrayList();
         String request = "SELECT signalement.*,statut.etatStatut,probleme.designationProbleme FROM signalement JOIN probleme ON signalement.idProbleme = probleme.idProbleme JOIN statut ON statut.idStatut = signalement.idStatut where signalement.idUtilisateur="+idUtil;
@@ -633,6 +652,85 @@ public class Signalement {
             ex.printStackTrace();
         }
         return liste;
+    }
+    public List<Signalement> signalementParRegion(String id){
+    	List<Signalement> liste = new ArrayList();
+    	Region regionById = Region.RegionbyId(id);
+    	String request = "select * from signalement where coordonneX >="+regionById.getCoordonneX()+" and coordonneX <="+regionById.getCoordonneX1()+" and coordonneY >= "+regionById.getCoordonneY()+" and coordonneY <= "+regionById.getCoordonneY1();
+    	Statement stmt;
+        Connection connex;
+        int i = 1;
+        try {
+            Region a=new Region();
+            connex = Connexion.con(); 
+            stmt = connex.createStatement();
+            ResultSet res = stmt.executeQuery(request);
+            System.out.println("Requete signalemant Par Region : "+request);
+            while (res.next()){
+            	int idSignalement = res.getInt(1);
+                int idUtilisateur = res.getInt(2);
+                double coordonneX = res.getDouble(3);
+                double coordonneY = res.getDouble(4);
+                String descriptionProbleme = res.getString(5);
+                Date datySignalement = res.getDate(6);
+                String photo = res.getString(7);
+                int idProbleme = res.getInt(8);
+                int idStatut = res.getInt(9);
+            
+                liste.add(new Signalement(idSignalement,idUtilisateur,coordonneX,coordonneY,descriptionProbleme,datySignalement,photo,idProbleme,idStatut));
+            
+            }
+            connex.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    	return liste;
+    }
+    
+    public List<Signalement>/*double*/ signalementRegion(String name){
+    	List<Signalement> liste = new ArrayList();
+    	Region region=new Region();
+    	List<Region> regionByName = region.RegionbyName(name);
+    	/*double cooX=0;
+    	double cooX1=0;
+    	double cooY=0;
+    	double cooY1=0;*/
+    	for(int r=0;r<regionByName.size();r++)
+    	{
+	    	String request = "select * from signalement where coordonneX >="+regionByName.get(r).getCoordonneX()+" and coordonneX <="+regionByName.get(r).getCoordonneX1()+" and coordonneY >= "+regionByName.get(r).getCoordonneY()+" and coordonneY <= "+regionByName.get(r).getCoordonneY1();
+	    	Statement stmt;
+	        Connection connex;
+	        int i = 1;
+	        try {
+	            Region a=new Region();
+	            connex = Connexion.con(); 
+	            stmt = connex.createStatement();
+	            ResultSet res = stmt.executeQuery(request);
+	            System.out.println("Requete signalemant Par Region : "+request);
+	            while (res.next()){
+	            	int idSignalement = res.getInt(1);
+	                int idUtilisateur = res.getInt(2);
+	                double coordonneX = res.getDouble(3);
+	                double coordonneY = res.getDouble(4);
+	                String descriptionProbleme = res.getString(5);
+	                Date datySignalement = res.getDate(6);
+	                String photo = res.getString(7);
+	                int idProbleme = res.getInt(8);
+	                int idStatut = res.getInt(9);
+	            
+	                liste.add(new Signalement(idSignalement,idUtilisateur,coordonneX,coordonneY,descriptionProbleme,datySignalement,photo,idProbleme,idStatut));
+	            
+	            }
+	            connex.close();
+	        } catch (Exception ex) {
+	            ex.printStackTrace();
+	        }
+    		/*cooX=regionByName.get(r).getCoordonneX();
+    		cooX1=regionByName.get(r).getCoordonneX1();
+    		cooY=regionByName.get(r).getCoordonneY();
+    		cooY1=regionByName.get(r).getCoordonneY1();*/
+    	}
+    	return liste;
     }
 
     // public static void main(String[] args){
