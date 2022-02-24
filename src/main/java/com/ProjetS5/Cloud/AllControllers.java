@@ -28,6 +28,7 @@ public class AllControllers {
 		List<Signalement> liste = signalement.allSignalementEtat();
 		return liste;
 	}
+	
 
     @CrossOrigin(origins = "*")
 	@RequestMapping("/listeRegion")
@@ -49,6 +50,7 @@ public class AllControllers {
 	@RequestMapping("/listeProbleme")
 	public List<Probleme> listeProbleme(){
 		Probleme probleme = new Probleme();
+		int p=0;
 		List<Probleme> liste = probleme.allProbleme();
 		return liste;
 	}
@@ -164,13 +166,30 @@ public class AllControllers {
 		return "succes";
 	}
 
-	@CrossOrigin(origins = "*")
-	@RequestMapping(value = "/updateSignalement", method = RequestMethod.GET,consumes = { MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE})
-	public void updateSignalement(@RequestPart("idSignalement") int idSignalement, @RequestPart("idStatut")int idStatut){
-		Signalement signalement = new Signalement();
-		signalement.updateSignalement(idSignalement, idStatut);
-		System.out.println("idSignalemet : "+idSignalement);
-		System.out.println("idStatut : "+idStatut);
+	@RequestMapping(value = "/updateSignalement/{idSignalement}/{idStatut}", method = RequestMethod.GET)
+	public boolean updateSignalement(@PathVariable("idSignalement") int idSignalement, @PathVariable("idStatut")int idStatut){
+		boolean valiny=true;
+		try {
+			Signalement signalement = new Signalement();
+			signalement.updateSignalement(idSignalement, idStatut);
+			String login=Signalement.login(idSignalement);
+			String etat="";
+			if(idStatut==3) {
+				etat="envoyée au chef region responssable en ce moment";
+			}
+			if(idStatut==1) {
+				etat="en cours de traitement ";
+			}
+			if(idStatut==2) {
+				etat="à présent résolue";
+			}
+			System.out.println("mail"+login);
+			Mailling.send("ampitaomada@gmail.com","MaNaMi2022", login,etat);
+		}catch(Exception e) {
+			valiny=false;
+		}
+		return valiny;
+		
 	}
 	
 	@CrossOrigin(origins = "*")
@@ -361,6 +380,31 @@ public class AllControllers {
 		else {
 			retour = "ERROR";
 		}
+		return retour;
+	}
+	@CrossOrigin(origins = "*")
+	@RequestMapping(value = "/getSignalementByRegion/{id}" , method = RequestMethod.GET)
+	public List<Signalement> getSignalementParRegion(@PathVariable("id")String id)
+	{
+		Signalement signalement = new Signalement();
+		List<Signalement> liste = signalement.signalementParRegion(id);
+		return liste;
+	}
+	
+	@CrossOrigin(origins = "*")
+	@RequestMapping(value = "/getSignalementRegion/{name}" , method = RequestMethod.GET)
+	public List<Signalement> getSignalementRegion(@PathVariable("name")String name)
+	{
+		Signalement signalement = new Signalement();
+		List<Signalement> liste = signalement.signalementRegion(name);
+		return liste;
+	}
+	
+	@CrossOrigin(origins = "*")
+	@RequestMapping(value = "/valideConnexChef/{loginChef}/{mdpChef}" , method = RequestMethod.GET)
+	public int valideConnexChef(@PathVariable("loginChef") String loginChef, @PathVariable("mdpChef") String mdpChef){
+		ChefRegion chef = new ChefRegion();
+		int retour = chef.validConnex(loginChef, mdpChef);
 		return retour;
 	}
 }

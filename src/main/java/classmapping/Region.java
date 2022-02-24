@@ -233,7 +233,7 @@ public class Region {
         return idRegion;
     }
 
-    public Region RegionbyId(String s){
+    public static Region RegionbyId(String s){
         List<Region> liste = new ArrayList();
         String request = "select * from Region where idRegion="+s;
         Statement stmt;
@@ -260,6 +260,34 @@ public class Region {
         }
         Region valiny=liste.get(0);
         return valiny;
+    }
+    public List<Region> RegionbyName(String name){
+        List<Region> liste = new ArrayList();
+        String request = "select * from Region where designationRegion='"+name+"'";
+        Statement stmt;
+        Connection connex;
+        int i = 0;
+        Region valiny=new Region();
+        try {
+            connex = Connexion.con(); 
+            stmt = connex.createStatement();
+            ResultSet res = stmt.executeQuery(request);
+            // System.out.println("Requete all region : "+request);
+            while (res.next()){
+                int idRegion  = res.getInt(1);                
+                String designationRegion  = res.getString(2);
+                double coordonneX  = res.getDouble(3);
+                double coordonneY  = res.getDouble(4);
+                double coordonneX1  = res.getDouble(5);
+                double coordonneY1  = res.getDouble(6);
+                liste.add(new Region(idRegion, designationRegion, coordonneX, coordonneY, coordonneX1, coordonneY1));               
+                i++;
+            }
+            connex.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return liste;
     }
 
     public static void main(String[] args){
