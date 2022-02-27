@@ -1,6 +1,7 @@
 package classmapping;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.DecimalFormat;
@@ -90,7 +91,48 @@ public class Probleme {
     public void setRegion(String region) {
         this.region = region;
     }
-    
+    public List<Probleme> searchSignaleByDate(String date1,String date2)throws Exception
+    {
+    	List<Probleme> liste = new ArrayList();
+    	String request =null;
+    	if(date2==null)
+    	{
+    		request = "SELECT signalement.idProbleme,designationProbleme,coordonneX, coordonneY ,etatStatut FROM signalement JOIN Probleme ON signalement.idProbleme = Probleme.idProbleme join statut on signalement.idStatut=statut.idStatut where datySignalement >= '"+date1+"' and Now() ;";
+    	}
+    	if(date2!=null) 
+    	{
+    		if(date2.compareTo(date1)>0)
+    		{
+    			request = "SELECT signalement.idProbleme,designationProbleme,coordonneX, coordonneY ,etatStatut FROM signalement JOIN Probleme ON signalement.idProbleme = Probleme.idProbleme join statut on signalement.idStatut=statut.idStatut where datySignalement >= '"+date1+"' and datySignalement <= '"+date2+"' ;";
+    		}
+    		else {
+    			throw new Exception("Tsy mety io date io eeeeh");
+    		}
+    	}
+    	System.out.println(request);
+    	Statement stmt;
+        Connection connex;
+        try {
+        	connex = Connexion.con(); 
+            stmt = connex.createStatement();
+            ResultSet res = stmt.executeQuery(request);
+            while (res.next()){
+            	int id = res.getInt(1);  
+                String designationProbleme  = res.getString(2);
+                double coordonneX  = res.getDouble(3);
+                double coordonneY  = res.getDouble(4);
+                String statut=res.getString(5);
+                System.out.println("stat"+ statut);
+                liste.add(new Probleme(id,designationProbleme,coordonneX+"-"+coordonneY,statut));
+            }
+        
+        }
+        catch(Exception ex)
+        {
+        	ex.printStackTrace();
+        }
+    	return liste;
+    }
     
     
     public int countProbleme(){
@@ -202,9 +244,8 @@ public class Probleme {
                 double coordonneX  = res.getDouble(3);
                 double coordonneY  = res.getDouble(4);
                 String statut=res.getString(5);
-                String anaranaRegion = reg.getRegionByCoordonne(coordonneX, coordonneY);
                 System.out.println("stat"+ statut);
-                liste.add(new Probleme(id,designationProbleme,anaranaRegion,statut));               
+                liste.add(new Probleme(id,designationProbleme,coordonneX+"-"+coordonneY,statut));               
             }
             connex.close();
         } catch (Exception ex) {
@@ -216,7 +257,7 @@ public class Probleme {
     	Region reg= new Region();
     	
         List<Probleme> liste = new ArrayList();
-        String request = "SELECT signalement.idProbleme, designationProbleme, coordonneX, coordonneY, etatStatut\r\n"
+        String request = "SELECT signalement.idProbleme, designationProbleme, coordonneX, coordonneY, etatStatut,idregion\r\n"
         		+ "FROM signalement\r\n"
         		+ "JOIN Probleme ON signalement.idProbleme = Probleme.idProbleme\r\n"
         		+ "JOIN statut ON signalement.idStatut = statut.idStatut\r\n"
@@ -240,7 +281,8 @@ public class Probleme {
                 double coordonneX  = res.getDouble(3);
                 double coordonneY  = res.getDouble(4);
                 String sta=res.getString(5);
-                String anaranaRegion = reg.getRegionByCoordonne(coordonneX, coordonneY);
+                reg=Region.RegionbyId(""+res.getInt("idRegion"));
+                String anaranaRegion = reg.getDesignationRegion();
                 if(region.equalsIgnoreCase("")==false) {
                 	if(anaranaRegion.equalsIgnoreCase(region.trim())==true) {                        
                 		liste.add(new Probleme(id,designationProbleme,anaranaRegion,sta));               
@@ -250,7 +292,7 @@ public class Probleme {
                 }
                 else {
                     System.out.println("Requete recherche probleme aaaa: "+request);
-                	liste.add(new Probleme(id,designationProbleme,anaranaRegion,sta));               
+                	liste.add(new Probleme(id,designationProbleme,coordonneX+"-"+coordonneY,sta));               
                     i++;
                 }
                 

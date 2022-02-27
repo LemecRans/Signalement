@@ -20,6 +20,16 @@ import classmapping.*;
 
 @RestController
 public class AllControllers {
+	int idR=0;
+	int idChef=0;
+	@CrossOrigin(origins = "*")
+	@RequestMapping(value = "/affectationParRegion/{idProbleme}/{idR}" , method = RequestMethod.GET )
+	public String affectation(@PathVariable("idProbleme") String idProbleme,@PathVariable("idR") String idR){
+		ProblemeRegion problemeRegion = new ProblemeRegion();
+		System.out.println("okkkkkkkkkk");
+		String valiny = problemeRegion.affecterSignalement(Integer.parseInt(idProbleme.trim()),Integer.parseInt(idR.trim()));
+		return valiny;
+	}
 
 	@CrossOrigin(origins = "*")
 	@RequestMapping("/listeSignalement")
@@ -56,16 +66,16 @@ public class AllControllers {
 	}
 
 	@CrossOrigin(origins = "*")
-	@RequestMapping(value = "/listeRechercheRegion", method = RequestMethod.GET,consumes = { MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE})
-	public List<String> listeRechercheRegion(@RequestPart("motAChercher") String motAChercher){
+	@RequestMapping(value = "/listeRechercheRegion/{motAChercher}", method = RequestMethod.GET)
+	public List<String> listeRechercheRegion(@PathVariable("motAChercher") String motAChercher){
 		Region region = new Region();
 		List<String> liste = region.rechercheRegion(motAChercher);
 		return liste;
 	}
 
 	@CrossOrigin(origins = "*")
-	@RequestMapping(value = "/listeRechercheProbleme", method = RequestMethod.GET,consumes = { MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE})
-	public List<Probleme> listeRechercheProbleme(@RequestPart("motAChercher") String motAChercher){
+	@RequestMapping(value = "/listeRechercheProbleme/{motAChercher}", method = RequestMethod.GET)
+	public List<Probleme> listeRechercheProbleme(@PathVariable("motAChercher") String motAChercher){
 		Probleme probleme = new Probleme();
 		List<Probleme> liste = probleme.rechercheProbleme(motAChercher);
 		return liste;
@@ -99,23 +109,24 @@ public class AllControllers {
 	}
 	
 	@CrossOrigin(origins = "*")
-	@RequestMapping(value = "/listeRecherchePro", method = RequestMethod.GET,consumes = { MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE})
-	public List<Probleme> listeRecherchePro(@RequestPart("motAChercher") String motAChercher){
+	@RequestMapping(value = "/listeRecherchePro/{motAChercher}", method = RequestMethod.GET)
+	public List<Probleme> listeRecherchePro(@PathVariable("motAChercher") String motAChercher){
 		String blem="";
 		String region="";
 		String statut="";
+		String temp="";
+		System.out.println(motAChercher);
 		if(motAChercher.equalsIgnoreCase("")==false) {
-			if(motAChercher.split("!").length>1) {
-				if(motAChercher.split("=")[0].equalsIgnoreCase("")==false) {
-					blem=motAChercher.split("=")[0];
-					System.out.println(blem);
-				}
+			if(motAChercher.split("=")[0].equalsIgnoreCase("")==false) {
+				blem=motAChercher.split("=")[0];
+				System.out.println(blem);
 			}
+			//http://localhost:9000/listeRecherchePro/Tapaka jiro=?!
 			if(motAChercher.split("=").length>1) {
 				if(motAChercher.split("=")[1].equalsIgnoreCase("")==false) {
-					region=motAChercher.split("=")[1];
-					if(region.split("!")[0].equalsIgnoreCase("")==false) {
-						region=region.split("!")[0];
+					temp=motAChercher.split("=")[1];
+					if(region.split("!")[0].trim().equalsIgnoreCase("")==false) {
+						region=temp.split("!")[0];
 						System.out.println(region);
 					}
 				}
@@ -127,6 +138,7 @@ public class AllControllers {
 				}
 			}
 		}
+		System.out.println(blem+"-"+region+"-"+statut);
 		Probleme probleme = new Probleme();
 		List<Probleme> liste = probleme.recherchePro(blem,region,statut);
 		for(int i=0; i< liste.size();i++){
@@ -136,10 +148,23 @@ public class AllControllers {
 	}
 
 	@CrossOrigin(origins = "*")
-	@RequestMapping(value = "/listeRechercheProblemeParRegion", method = RequestMethod.GET,consumes = { MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE})
-	public List<Region> listeRechercheProblemeParRegion(@RequestPart("motAChercher") String motAChercher){
+	@RequestMapping(value = "/listeRechercheProblemeParRegion/{motAChercher}", method = RequestMethod.GET)
+	public List<Region> listeRechercheProblemeParRegion(@PathVariable("motAChercher") String motAChercher){
 		Region region = new Region();
 		List<Region> liste = region.rechercheProblemeParRegion(motAChercher);
+		return liste;
+	}
+	@CrossOrigin(origins = "*")
+	@RequestMapping(value = "/listeRechercheProblemeParDate/{d1}/{d2}", method = RequestMethod.GET)
+	public List<Probleme> listeRechercheProblemeParDate(@PathVariable("d1")String date1,@PathVariable("d2")String date2){
+		Probleme region = new Probleme();
+		List<Probleme> liste=null;
+		try {
+			liste = region.searchSignaleByDate(date1,date2);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return liste;
 	}
 
@@ -152,16 +177,16 @@ public class AllControllers {
 	}
 
 	@CrossOrigin(origins = "*")
-	@RequestMapping(value = "/deleteSignalement", method = RequestMethod.GET,consumes = { MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE})
-	public String deleteSignalement(@RequestPart("idSignalement") int idSignalement){
+	@RequestMapping(value = "/deleteSignalement/{idSignalement}", method = RequestMethod.GET)
+	public String deleteSignalement(@PathVariable("idSignalement") int idSignalement){
 		Signalement signalement = new Signalement();
 		signalement.deleteSignalement(idSignalement);
 		return "succes";
 	}
 	
 	@CrossOrigin(origins = "*")
-	@RequestMapping(value = "/deleteRegion", method = RequestMethod.GET,consumes = { MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE})
-	public String deleteRegion(@RequestPart("id")String  id){
+	@RequestMapping(value = "/deleteRegion/{id}", method = RequestMethod.GET)
+	public String deleteRegion(@PathVariable("id")String  id){
 		Region.delete(id);
 		return "succes";
 	}
@@ -293,12 +318,10 @@ public class AllControllers {
 		}
 		return retour;
 	}
-
 	@CrossOrigin(origins = "*")
-	@RequestMapping(value = "/affectationParRegion" , method = RequestMethod.GET,consumes = { MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE})
-	public String affectationParRegion(@RequestPart("idProbleme") int idProbleme,@RequestPart("idRegion") int idRegion){
-		ProblemeRegion problemeRegion = new ProblemeRegion();
-		String valiny = problemeRegion.affecterSignalement(idProbleme,idRegion);
+	@GetMapping(value = "/proche/{x}/{y}" )
+	public List<Region> proche(@PathVariable("x") String x,@PathVariable("y") String y){
+		List<Region> valiny = Region.proche(-Double.parseDouble(x.substring(1).trim())  ,Double.parseDouble(y.trim()));
 		return valiny;
 	}
 
@@ -383,28 +406,51 @@ public class AllControllers {
 		return retour;
 	}
 	@CrossOrigin(origins = "*")
-	@RequestMapping(value = "/getSignalementByRegion/{id}" , method = RequestMethod.GET)
-	public List<Signalement> getSignalementParRegion(@PathVariable("id")String id)
+	@RequestMapping(value = "/getSignalementByRegion" , method = RequestMethod.GET)
+	public List<Signalement> getSignalementParRegion()
 	{
 		Signalement signalement = new Signalement();
-		List<Signalement> liste = signalement.signalementParRegion(id);
+		List<Signalement> liste = signalement.signalementParRegion(""+idR);
 		return liste;
 	}
 	
 	@CrossOrigin(origins = "*")
-	@RequestMapping(value = "/getSignalementRegion/{name}" , method = RequestMethod.GET)
-	public List<Signalement> getSignalementRegion(@PathVariable("name")String name)
+	@RequestMapping(value = "/getSignalementRegion" , method = RequestMethod.GET)
+	public List<Signalement> getSignalementRegion()
 	{
 		Signalement signalement = new Signalement();
-		List<Signalement> liste = signalement.signalementRegion(name);
+		List<Signalement> liste = signalement.signalementRegion(""+idR);
+		System.out.println(liste.size());
 		return liste;
 	}
 	
 	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/valideConnexChef/{loginChef}/{mdpChef}" , method = RequestMethod.GET)
-	public int valideConnexChef(@PathVariable("loginChef") String loginChef, @PathVariable("mdpChef") String mdpChef){
-		ChefRegion chef = new ChefRegion();
-		int retour = chef.validConnex(loginChef, mdpChef);
+	public Region valideConnexChef(@PathVariable("loginChef") String loginChef, @PathVariable("mdpChef") String mdpChef){
+		Region retour=null;
+		try {
+			retour = ChefRegion.validConnex(loginChef, mdpChef);
+			ChefRegion chef = ChefRegion.chefbylogin(loginChef);
+			idR=retour.getIdRegion();
+			idChef=chef.getIdChefRegion();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 		return retour;
+	}
+	@CrossOrigin(origins = "*")
+	@RequestMapping(value = "/infoChef" , method = RequestMethod.GET)
+	public ChefRegion infoChef(){
+		ChefRegion chef=null;
+		if(idChef!=0) {
+			try {
+				chef = ChefRegion.infoChefRegionById(idChef);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return chef;
 	}
 }

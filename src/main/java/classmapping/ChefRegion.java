@@ -144,8 +144,30 @@ public class ChefRegion {
          }
          return liste;
      }
+	 public static ChefRegion chefbylogin(String login) {
+		 ChefRegion valiny=null;
+		 String request = "select * from ChefRegion WHERE loginChefRegion = '"+login+"'";
+         Statement stmt;
+         Connection connex;
+         try {
+			connex = Connexion.con(); 
+			stmt = connex.createStatement();
+			ResultSet res = stmt.executeQuery(request);
+			System.out.println("Requete Chef : "+request);
+			while (res.next()){
+				int id = res.getInt("idChefRegion");
+				String nom = res.getString(2);    
+				String prenom = res.getString(3);
+				valiny=new ChefRegion(id,nom, prenom, 0,login,null);   
+			}
+			connex.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		 return valiny;
+	 }
 	 
-	 public ChefRegion infoChefRegionById(int id){
+	 public static ChefRegion infoChefRegionById(int id){
          ChefRegion liste = new ChefRegion();
          String request = "select ChefRegion.nom, chefRegion.prenom, region.designationRegion from ChefRegion JOIN Region ON ChefRegion.idRegion = Region.idRegion WHERE idChefRegion = "+id;
          Statement stmt;
@@ -170,16 +192,15 @@ public class ChefRegion {
 		return liste;
      }
 	 
- 	public int validConnex(String login, String mdp){         
-         int retour = 0;
+ 	public static Region validConnex(String login, String mdp){         
+ 		Region retour = null;
          ChefRegion chefRegion = new ChefRegion();
          List<ChefRegion> liste = chefRegion.listeChef();
          for(int i=0; i<liste.size(); i++) {
              if(liste.get(i).getLoginChefRegion().equals(login.trim()) == true && liste.get(i).getMdpChefRegion().equals(mdp.trim()) == true){
-                 retour = liste.get(i).getIdChefRegion();
+                 retour = Region.RegionbyId(""+liste.get(i).getIdRegion());
                  break;
              }
-             else retour=0;
          }
          return retour;
      }
@@ -189,8 +210,8 @@ public class ChefRegion {
 		ChefRegion regionChef = new ChefRegion();
 		List<ChefRegion> liste = regionChef.infoChefRegion();
 		ChefRegion chefById = regionChef.infoChefRegionById(8);
-		int connect = regionChef.validConnex("region5", "region5");
-		System.out.println(connect);
+		//int connect = regionChef.validConnex("region5", "region5");
+		//System.out.println(connect);
 //		System.out.println(chefById.getNom()+" - "+chefById.getPrenom()+" - "+chefById.getDesignationRegion());
 //		for(int i=0; i<liste.size(); i++) {
 //			System.out.println(liste.get(i).getNom()+" - "+liste.get(i).getPrenom()+" - "+liste.get(i).getDesignationRegion());

@@ -261,8 +261,8 @@ public class Region {
         Region valiny=liste.get(0);
         return valiny;
     }
-    public List<Region> RegionbyName(String name){
-        List<Region> liste = new ArrayList();
+    public Region RegionbyName(String name){
+        Region liste = null;
         String request = "select * from Region where designationRegion='"+name+"'";
         Statement stmt;
         Connection connex;
@@ -280,7 +280,7 @@ public class Region {
                 double coordonneY  = res.getDouble(4);
                 double coordonneX1  = res.getDouble(5);
                 double coordonneY1  = res.getDouble(6);
-                liste.add(new Region(idRegion, designationRegion, coordonneX, coordonneY, coordonneX1, coordonneY1));               
+                liste=new Region(idRegion, designationRegion, coordonneX, coordonneY, coordonneX1, coordonneY1);               
                 i++;
             }
             connex.close();
@@ -289,11 +289,56 @@ public class Region {
         }
         return liste;
     }
-
+    public static List<Region> proche(double x,double y){
+        List<Region> liste = new ArrayList();
+        String request = "SELECT * FROM region";
+        Statement stmt;
+        //System.out.println(x+"-"+y);
+        Connection connex;
+        try {
+            connex = Connexion.con(); 
+            stmt = connex.createStatement();
+            ResultSet res = stmt.executeQuery(request);
+            while (res.next()){
+            	/*int i=Region.estproche(x,res.getDouble("coordonneX"),y,res.getDouble("coordonneY"));
+            	if(i==1) {*/
+            		String designationProbleme  = res.getString(1);
+                    String designationRegion  = res.getString(2);
+                    liste.add(new Region(designationRegion,designationProbleme));
+            	//}
+            }
+            connex.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return liste;
+    }
+    //atoooooooooooooooooooooooo
+    public static double calculdistance(double y2,double x2,double e,double d){
+		double valiny=0.0;
+		double reps;
+		Double vali=new Double(valiny);
+		double x=0;
+		double y=0;
+		x=Math.abs(x2-y2);
+		y=Math.abs(e-d);
+		reps=Math.pow(x,2)+Math.pow(y,2);
+		valiny=Math.sqrt(reps);
+		//System.out.println("distance:"+valiny);
+		return valiny;
+	}
+	public static int estproche(double x,double d,double y,double e){
+		int valiny=0;
+		double distance=calculdistance(y,x,e,d);
+		if(distance<=30 ){
+			valiny=1;
+		}
+		return valiny;
+	}
     public static void main(String[] args){
         Region region = new Region();
         int getId = region.getIdRegionByName("Melaky");
-        System.out.println(getId);
+        //System.out.println(getId);
 
     }
 }

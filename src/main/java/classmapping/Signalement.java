@@ -295,20 +295,17 @@ public class Signalement {
             ResultSet res = stmt.executeQuery(request);
             System.out.println("Requete all Signalement Etat : "+request);
             while (res.next()){                        
-                int idSignalement = res.getInt(1);
-                int idUtilisateur = res.getInt(2);
-                double coordonneX = res.getDouble(3);
-                double coordonneY = res.getDouble(4);
-                String descriptionProbleme = res.getString(5);
-                Date datySignalement = res.getDate(6);
-                String photo = res.getString(7);
-                int idProbleme = res.getInt(8);
-                // int idStatut = res.getInt(9);
-                String designationStatut = res.getString(10);
-                String designationProbleme = res.getString(11);
-                String region=a.getRegionByCoordonne(coordonneX, coordonneY);
-                int regionId = a.getIdRegionByName(region);
-                liste.add(new Signalement(idSignalement,idUtilisateur,region,descriptionProbleme,datySignalement,photo,designationProbleme,designationStatut, idProbleme,regionId,coordonneX,coordonneY));
+                int idSignalement = res.getInt("idSignalement");
+                int idUtilisateur = res.getInt("idUtilisateur");
+                double coordonneX = res.getDouble("coordonneX");
+                double coordonneY = res.getDouble("coordonneY");
+                String descriptionProbleme = res.getString("descriptionProbleme");
+                Date datySignalement = res.getDate("datySignalement");
+                String photo = res.getString("photo");
+                int idProbleme = res.getInt("idProbleme");
+                String designationStatut = res.getString("statut.etatStatut");
+                String designationProbleme = res.getString("probleme.designationProbleme");
+                liste.add(new Signalement(idSignalement,idUtilisateur,null,descriptionProbleme,datySignalement,photo,designationProbleme,designationStatut, idProbleme,regionId,coordonneX,coordonneY));
                 i++;
             }
             connex.close();
@@ -340,6 +337,23 @@ public class Signalement {
         try {
             System.out.println("Update signalement : "+request);
             connex = Connexion.con(); 
+            stmt = connex.createStatement();
+            stmt.executeUpdate(request);
+            connex.close();
+        } catch (SQLException ex) {           
+            ex.printStackTrace();
+        }
+    }
+    public static void updateAffecte(int idSignalement,int idRegion){
+        String request = "UPDATE Signalement SET isAffecter = 1 WHERE idSignalement = "+idSignalement;
+        Statement stmt;
+        Connection connex;
+        try {
+            System.out.println("Update signalement : "+request);
+            connex = Connexion.con(); 
+            stmt = connex.createStatement();
+            stmt.executeUpdate(request);
+            request = "UPDATE Signalement SET idRegion ="+1+" WHERE idSignalement = "+idSignalement;
             stmt = connex.createStatement();
             stmt.executeUpdate(request);
             connex.close();
@@ -587,7 +601,7 @@ public class Signalement {
             stmt = connex.createStatement();
             ResultSet res = stmt.executeQuery(request);
             while (res.next()){
-                liste=res.getString(2);;
+                liste=res.getString(2);
             }
             connex.close();
         } catch (Exception ex) {
@@ -656,7 +670,7 @@ public class Signalement {
     public List<Signalement> signalementParRegion(String id){
     	List<Signalement> liste = new ArrayList();
     	Region regionById = Region.RegionbyId(id);
-    	String request = "select * from signalement where coordonneX >="+regionById.getCoordonneX()+" and coordonneX <="+regionById.getCoordonneX1()+" and coordonneY >= "+regionById.getCoordonneY()+" and coordonneY <= "+regionById.getCoordonneY1();
+    	String request = "select * from signalement JOIN Probleme ON Signalement.idProbleme = Probleme.idProbleme JOIN Statut ON Statut.idStatut = Signalement.idStatut where isAffecter =1 and idRegion = "+regionById.idRegion;
     	Statement stmt;
         Connection connex;
         int i = 1;
@@ -667,18 +681,18 @@ public class Signalement {
             ResultSet res = stmt.executeQuery(request);
             System.out.println("Requete signalemant Par Region : "+request);
             while (res.next()){
-            	int idSignalement = res.getInt(1);
-                int idUtilisateur = res.getInt(2);
-                double coordonneX = res.getDouble(3);
-                double coordonneY = res.getDouble(4);
-                String descriptionProbleme = res.getString(5);
-                Date datySignalement = res.getDate(6);
-                String photo = res.getString(7);
-                int idProbleme = res.getInt(8);
-                int idStatut = res.getInt(9);
-            
-                liste.add(new Signalement(idSignalement,idUtilisateur,coordonneX,coordonneY,descriptionProbleme,datySignalement,photo,idProbleme,idStatut));
-            
+            	int idSignalement = res.getInt("idSignalement");
+                int idUtilisateur = res.getInt("idUtilisateur");
+                double coordonneX = res.getDouble("coordonneX");
+                double coordonneY = res.getDouble("coordonneY");
+                String descriptionProbleme = res.getString("descriptionProbleme");
+                Date datySignalement = res.getDate("datySignalement");
+                String photo = res.getString("photo");
+                int idProbleme = res.getInt("idProbleme");
+                String designationStatut = res.getString("statut.etatStatut");
+                String designationProbleme = res.getString("probleme.designationProbleme");
+                liste.add(new Signalement(idSignalement,idUtilisateur,null,descriptionProbleme,datySignalement,photo,designationProbleme,designationStatut, idProbleme,regionId,coordonneX,coordonneY));
+                i++;
             }
             connex.close();
         } catch (Exception ex) {
@@ -690,46 +704,34 @@ public class Signalement {
     public List<Signalement>/*double*/ signalementRegion(String name){
     	List<Signalement> liste = new ArrayList();
     	Region region=new Region();
-    	List<Region> regionByName = region.RegionbyName(name);
-    	/*double cooX=0;
-    	double cooX1=0;
-    	double cooY=0;
-    	double cooY1=0;*/
-    	for(int r=0;r<regionByName.size();r++)
-    	{
-	    	String request = "select * from signalement where coordonneX >="+regionByName.get(r).getCoordonneX()+" and coordonneX <="+regionByName.get(r).getCoordonneX1()+" and coordonneY >= "+regionByName.get(r).getCoordonneY()+" and coordonneY <= "+regionByName.get(r).getCoordonneY1();
-	    	Statement stmt;
-	        Connection connex;
-	        int i = 1;
-	        try {
-	            Region a=new Region();
-	            connex = Connexion.con(); 
-	            stmt = connex.createStatement();
-	            ResultSet res = stmt.executeQuery(request);
-	            System.out.println("Requete signalemant Par Region : "+request);
-	            while (res.next()){
-	            	int idSignalement = res.getInt(1);
-	                int idUtilisateur = res.getInt(2);
-	                double coordonneX = res.getDouble(3);
-	                double coordonneY = res.getDouble(4);
-	                String descriptionProbleme = res.getString(5);
-	                Date datySignalement = res.getDate(6);
-	                String photo = res.getString(7);
-	                int idProbleme = res.getInt(8);
-	                int idStatut = res.getInt(9);
-	            
-	                liste.add(new Signalement(idSignalement,idUtilisateur,coordonneX,coordonneY,descriptionProbleme,datySignalement,photo,idProbleme,idStatut));
-	            
-	            }
-	            connex.close();
-	        } catch (Exception ex) {
-	            ex.printStackTrace();
-	        }
-    		/*cooX=regionByName.get(r).getCoordonneX();
-    		cooX1=regionByName.get(r).getCoordonneX1();
-    		cooY=regionByName.get(r).getCoordonneY();
-    		cooY1=regionByName.get(r).getCoordonneY1();*/
-    	}
+    	String request = "select * from signalement JOIN Probleme ON Signalement.idProbleme = Probleme.idProbleme JOIN Statut ON Statut.idStatut = Signalement.idStatut where isAffecter =1 and idRegion = "+name;
+    	Statement stmt;
+        Connection connex;
+        int i = 1;
+        try {
+            Region a=new Region();
+            connex = Connexion.con(); 
+            stmt = connex.createStatement();
+            ResultSet res = stmt.executeQuery(request);
+            System.out.println("Requete signalemant Par Region : "+request);
+            while (res.next()){
+            	int idSignalement = res.getInt("idSignalement");
+                int idUtilisateur = res.getInt("idUtilisateur");
+                double coordonneX = res.getDouble("coordonneX");
+                double coordonneY = res.getDouble("coordonneY");
+                String descriptionProbleme = res.getString("descriptionProbleme");
+                Date datySignalement = res.getDate("datySignalement");
+                String photo = res.getString("photo");
+                int idProbleme = res.getInt("idProbleme");
+                String designationStatut = res.getString("statut.etatStatut");
+                String designationProbleme = res.getString("probleme.designationProbleme");
+                liste.add(new Signalement(idSignalement,idUtilisateur,null,descriptionProbleme,datySignalement,photo,designationProbleme,designationStatut, idProbleme,regionId,coordonneX,coordonneY));
+                i++;
+            }
+            connex.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     	return liste;
     }
 

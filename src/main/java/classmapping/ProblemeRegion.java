@@ -229,10 +229,12 @@ public class ProblemeRegion {
         int compteur = problemeRegion.lastCompteur(idProbleme, idRegion); 
         if(compteur == 0){
             problemeRegion.insertProblemeRegion(idProbleme, idRegion);
+            
             valiny = "Donnée insérer 😀😀😀";
         }
         else{
             problemeRegion.updateProblemeRegion(idProbleme, idRegion);
+            Signalement.updateAffecte(idProbleme, idRegion);
             valiny = "Donnée modifier 😊😊😊";
         }
         return valiny;
