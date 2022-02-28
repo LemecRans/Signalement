@@ -22,6 +22,12 @@ import classmapping.*;
 public class AllControllers {
 	int idR=0;
 	int idChef=0;
+	
+	@CrossOrigin(origins = "*")
+	@RequestMapping(value = "/test" , method = RequestMethod.GET )
+	public String test(){
+		return "hello team";
+	}
 	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/affectationParRegion/{idProbleme}/{idR}" , method = RequestMethod.GET )
 	public String affectation(@PathVariable("idProbleme") String idProbleme,@PathVariable("idR") String idR){
